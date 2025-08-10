@@ -6,10 +6,10 @@ const app = express();
 const mongoose = require('mongoose');
 const cors = require('cors');
 const logger = require('morgan');
+const eventRouter = require('./controllers/events');
 
 // Import routers
 const authRouter = require('./controllers/auth');
-const testJwtRouter = require('./controllers/test-jwt');
 const usersRouter = require('./controllers/users');
 
 // Connect to MongoDB
@@ -26,8 +26,8 @@ app.use(logger('dev'));
 
 // Routes
 app.use('/auth', authRouter);
-app.use('/test-jwt', testJwtRouter);
 app.use('/users', usersRouter);
+app.use('/events', eventRouter);
 
 // Start the server and listen on port 3000
 app.listen(3000, () => {
