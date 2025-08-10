@@ -14,6 +14,17 @@ router.get('/', async (req,res) => {
   } catch(error){
     res.status(500).json(error.message);
   }
+});
+
+router.get('/:eventId', async (req,res) => {
+  try{
+    const event = await Event.findById(req.params.eventId).populate('owner');
+
+    res.status(201).json(event);
+
+  } catch(error){
+    res.status(500).json(error.message);
+  }
 })
 
 router.use(verifyToken);
