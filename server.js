@@ -29,7 +29,9 @@ app.use(logger('dev'));
 app.use('/auth', authRouter);
 app.use('/users', usersRouter);
 app.use('/events', eventRouter);
-app.use('/events', attendanceRouter);
+
+app.use('/attendance',attendanceRouter);
+
 
 // Start the server and listen on port 3000
 app.listen(3000, () => {
