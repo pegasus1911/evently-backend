@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
+
 const Attendance = require('../models/Attendance');
 const Event = require('../models/Event');
 const verifyToken = require('../middleware/verify-token');
+
 async function getEvent(eventId, res) {
     const event = await Event.findById(eventId);
     if (!event) {
@@ -16,12 +18,14 @@ router.post('/:id/attend', verifyToken, async (req, res) => {
   try {
     const event = await getEvent(req.params.id, res);
     if (!event) return;
+
     const databaseData = await Attendance.create({
       event: event._id,
       user: req.user._id,
      // status: req.body.status || 'going'
      status:"going"
     });
+
     res.status(201).json({
       _id: databaseData._id,
       event: databaseData.event,
@@ -32,7 +36,9 @@ router.post('/:id/attend', verifyToken, async (req, res) => {
     res.status(500).json({ err: err.message });
   }
 });
+
 //Leave an event
+
 router.delete('/:id/attend', verifyToken, async (req, res) => {
     try {
         await Attendance.findOneAndDelete({ event: req.params.id, user: req.user._id });
@@ -41,6 +47,7 @@ router.delete('/:id/attend', verifyToken, async (req, res) => {
         res.status(500).json({ err: err.message });
     }
 });
+
 // Get all attendees of an event
 router.get('/:id/attend', verifyToken, async (req, res) => {
     try {
@@ -50,4 +57,5 @@ router.get('/:id/attend', verifyToken, async (req, res) => {
         res.status(500).json({ err: err.message });
     }
 });
+
 module.exports = router;
