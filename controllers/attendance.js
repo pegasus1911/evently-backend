@@ -13,31 +13,33 @@ async function getEvent(eventId, res) {
     }
     return event;
 }
+// Attend an event
+router.post('/:id/attend', verifyToken, async (req, res) => {
+  try {
+    const event = await getEvent(req.params.id, res);
+    if (!event) return;
 
-router.post('/events/:id/attend', verifyToken, async (req, res) => {
-    try {
-        const event = await getEvent(req.params.id, res);
-        if (!event) return;
+    const databaseData = await Attendance.create({
+      event: event._id,
+      user: req.user._id,
+     // status: req.body.status || 'going'
+     status:"going"
+    });
 
-        const databaseData = await Attendance.create({
-            event: event._id,
-            user: req.user._id,
-            status: 'Joined'
-        });
-
-        res.status(201).json({
-            _id: databaseData._id,
-            event: databaseData.event,
-            user: databaseData.user,
-            status: databaseData.status
-        });
-    } catch (err) {
-        res.status(500).json({ err: err.message });
-    }
+    res.status(201).json({
+      _id: databaseData._id,
+      event: databaseData.event,
+      user: databaseData.user,
+      status: databaseData.status
+    });
+  } catch (err) {
+    res.status(500).json({ err: err.message });
+  }
 });
 
+//Leave an event
 
-router.delete('/events/:id/attend', verifyToken, async (req, res) => {
+router.delete('/:id/attend', verifyToken, async (req, res) => {
     try {
         await Attendance.findOneAndDelete({ event: req.params.id, user: req.user._id });
         res.json({ message: 'Left event successfully' });
@@ -46,7 +48,8 @@ router.delete('/events/:id/attend', verifyToken, async (req, res) => {
     }
 });
 
-router.get('/events/:id/attendees', verifyToken, async (req, res) => {
+// Get all attendees of an event
+router.get('/:id/attend', verifyToken, async (req, res) => {
     try {
         const attendees = await Attendance.find({ event: req.params.id });
         res.json(attendees);

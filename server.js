@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const logger = require('morgan');
 const eventRouter = require('./controllers/events');
+const attendanceRouter = require('./controllers/attendance');
 
 // Import routers
 const authRouter = require('./controllers/auth');
@@ -28,6 +29,7 @@ app.use(logger('dev'));
 app.use('/auth', authRouter);
 app.use('/users', usersRouter);
 app.use('/events', eventRouter);
+app.use('/events', attendanceRouter);
 
 // Start the server and listen on port 3000
 app.listen(3000, () => {

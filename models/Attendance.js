@@ -11,10 +11,13 @@ const attendanceSchema = new mongoose.Schema({
     ref: 'Event',
     required: true,
   },
-  status: {
-    type: String,
-    enum: ['going', 'not going', 'maybe'],
-    default: 'maybe',
+    status: {
+  type: String,
+  enum: ['going'],
+  default: 'going',
+  required: true,
+
+    
   },
   respondedAt: {
     type: Date,
