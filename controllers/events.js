@@ -3,34 +3,58 @@ const router = express.Router();// lets u grp routes
 const Event = require('../models/Event');// model for events
 const verifyToken = require('../middleware/verify-token');// middleware to verify JWT
 
+
+// ============OLD CODE============ //
 // this router will handle all requests related to events
-router.get('/', async (req,res) => {// router is mini express app for only one resource 
-  //get command will direct the request to a certain path
-  // async function to handle the request, await is used inside async 
-  try{
+// router.get('/', async (req,res) => {// router is mini express app for only one resource 
+//   //get command will direct the request to a certain path
+//   // async function to handle the request, await is used inside async 
+//   try{
+//     const events = await Event.find()
+//     .populate('owner')
+//     .sort({createdAt: "desc"});
+
+//     res.status(201).json(events);
+
+//   } catch(error){
+//     res.status(500).json(error.message);
+//   }
+// });// working inside try is better and if there are any errors it will be caught in the catch block
+
+// router.get('/:eventId', async (req,res) => {
+//   // this route is used to get a specific event
+//   try{
+//     //event.findbyid finds the event in mongodb
+//     const event = await Event.findById(req.params.eventId).populate('owner');// req.params.eventId is the id of the event that is passed in the url
+//     // await is used to wait for the data to be fetched from the database
+//     res.status(201).json(event);
+// // this sends the event back to the frontend
+//   } catch(error){
+//     res.status(500).json(error.message);
+//   }
+// })
+
+//=============NEW CODE ==========
+router.get('/', async (req, res) => {
+  try {
     const events = await Event.find()
-    .populate('owner')
-    .sort({createdAt: "desc"});
-
-    res.status(201).json(events);
-
-  } catch(error){
-    res.status(500).json(error.message);
+      .populate('owner')
+      .sort({ createdAt: -1 }); 
+    res.status(200).json(events); // Changed  201 cuz there was the err
+  } catch (error) {
+    res.status(500).json({ err: error.message });
   }
-});// working inside try is better and if there are any errors it will be caught in the catch block
+});
 
-router.get('/:eventId', async (req,res) => {
-  // this route is used to get a specific event
-  try{
-    //event.findbyid finds the event in mongodb
-    const event = await Event.findById(req.params.eventId).populate('owner');// req.params.eventId is the id of the event that is passed in the url
-    // await is used to wait for the data to be fetched from the database
-    res.status(201).json(event);
-// this sends the event back to the frontend
-  } catch(error){
-    res.status(500).json(error.message);
+router.get('/:eventId', async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.eventId).populate('owner');
+    if (!event) return res.status(404).json({ err: 'Event not found' });
+    res.status(200).json(event); // was 201
+  } catch (error) {
+    res.status(500).json({ err: error.message });
   }
-})
+});
 
 router.use(verifyToken);
 // Create an event
