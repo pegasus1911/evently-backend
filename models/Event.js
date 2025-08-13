@@ -13,10 +13,14 @@ const eventSchema = new mongoose.Schema({
       type: Date,
       required: true
     },
-  location: {
-      type: String,
-      required: true,
-    },
+locationName: { //  readable address
+    type: String,
+    required: true
+  },
+  location: {     // lat/lng coordinates
+    lat: { type: Number, required: true },
+    lng: { type: Number, required: true }
+  },
   isPublic: {
       type: Boolean,
       required: true,
