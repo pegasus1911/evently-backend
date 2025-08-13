@@ -13,18 +13,20 @@ const eventSchema = new mongoose.Schema({
       type: Date,
       required: true
     },
-locationName: { //  readable address
-    type: String,
-    required: true
-  },
-  location: {     // lat/lng coordinates
-    lat: { type: Number, required: true },
-    lng: { type: Number, required: true }
-  },
   isPublic: {
       type: Boolean,
       required: true,
     },
+    image: {
+    url: {
+      type: String,
+      required: true
+    },
+    cloudinary_id: {
+      type: String,
+      required: true
+    }
+  },
   capacity: {
       type: String,
       required: true
