@@ -2,9 +2,9 @@ const mongoose = require('mongoose');
 
 const attendanceSchema = new mongoose.Schema({
   user: {
-    type: mongoose.Schema.Types.ObjectId, // this means this is a relationship to another model
+    type: mongoose.Schema.Types.ObjectId, 
     ref: 'User',
-    required: true,// this means the user is required
+    required: true,
   },
   event: {
     type: mongoose.Schema.Types.ObjectId,
@@ -27,9 +27,9 @@ const attendanceSchema = new mongoose.Schema({
 
 attendanceSchema.set('toJSON', {
   transform: (document, returnedObject) => {
-    returnedObject.id = returnedObject._id.toString();// add a new field to string
-    delete returnedObject._id;// remove the _id field
-    delete returnedObject.__v; // remove the __v field
+    returnedObject.id = returnedObject._id.toString();
+    delete returnedObject._id;
+    delete returnedObject.__v; 
   },
 });
 

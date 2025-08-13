@@ -1,7 +1,8 @@
-const express = require('express');// framework for bldg APIs
-const router = express.Router();// lets u grp routes
-const Event = require('../models/Event');// model for events
-const verifyToken = require('../middleware/verify-token');// middleware to verify JWT
+const express = require('express');
+const router = express.Router();
+const Event = require('../models/Event');
+const verifyToken = require('../middleware/verify-token');
+const attendance = require('./attendance');
 
 
 
@@ -19,13 +20,9 @@ router.get('/', async (req,res) => {
 });
 
 router.get('/:eventId', async (req,res) => {
-  // this route is used to get a specific event
   try{
-    //event.findbyid finds the event in mongodb
-    const event = await Event.findById(req.params.eventId).populate('owner');// req.params.eventId is the id of the event that is passed in the url
-    // await is used to wait for the data to be fetched from the database
+    const event = await Event.findById(req.params.eventId).populate('owner');
     res.status(200).json(event);
-// this sends the event back to the frontend
   } catch(error){
     res.status(500).json(error.message);
   }
@@ -34,6 +31,7 @@ router.get('/:eventId', async (req,res) => {
 
 
 router.use(verifyToken);
+
 // Create an event
 router.post('/', async (req,res) => {
   try{
@@ -88,8 +86,8 @@ router.delete('/:eventId', async (req,res) => {
 //201 for created
 // 200 for success
 // 403 for forbidden (user not allowed to perform action)
-// 400 for bad request (e.g., missing parameters)
-// 401 for unauthorized (e.g., user not logged in)
+// 400 for bad request 
+// 401 for unauthorized 
 // 404 for not found
 // 500 for server error
 module.exports = router;

@@ -1,61 +1,151 @@
-const express = require('express');
-const router = express.Router();
+// // // const express = require('express');
+// // // const router = express.Router();
 
-const Attendance = require('../models/Attendance');
-const Event = require('../models/Event');
-const verifyToken = require('../middleware/verify-token');
+// // // const Attendance = require('../models/Attendance');
+// // // const Event = require('../models/Event');
+// // // const verifyToken = require('../middleware/verify-token');
 
-async function getEvent(eventId, res) {
-    const event = await Event.findById(eventId);
-    if (!event) {
-        res.status(404).json({ err: 'Event not found.' });
-        return null;
-    }
-    return event;
-}
-// Attend an event
+// // // async function getEvent(eventId, res) {
+// // //     const event = await Event.findById(eventId);
+// // //     if (!event) {
+// // //         res.status(404).json({ err: 'Event not found.' });
+// // //         return null;
+// // //     }
+// // //     return event;
+// // // }
+// // // // Attend an event
+// // // router.post('/:id/attend', verifyToken, async (req, res) => {
+// // //   try {
+// // //     const event = await getEvent(req.params.id, res);
+// // //     if (!event) return;
+
+// // //     const databaseData = await Attendance.create({
+// // //       event: event._id,
+// // //       user: req.user._id,
+// // //      // status: req.body.status || 'going'
+// // //      status:"going"
+// // //     });
+
+// // //     res.status(201).json({
+// // //       _id: databaseData._id,
+// // //       event: databaseData.event,
+// // //       user: databaseData.user,
+// // //       status: databaseData.status
+// // //     });
+// // //   } catch (err) {
+// // //     res.status(500).json({ err: err.message });
+// // //   }
+// // // });
+
+// // // //Leave an event
+
+// // // router.delete('/:id/attend', verifyToken, async (req, res) => {
+// // //     try {
+// // //         await Attendance.findOneAndDelete({ event: req.params.id, user: req.user._id });
+// // //         res.json({ message: 'Left event successfully' });
+// // //     } catch (err) {
+// // //         res.status(500).json({ err: err.message });
+// // //     }
+// // // });
+
+// // // // Get all attendees of an event
+// // // router.get('/:id/attend', verifyToken, async (req, res) => {
+// // //     try {
+// // //         const attendees = await Attendance.find({ event: req.params.id });
+// // //         res.json(attendees);
+// // //     } catch (err) {
+// // //         res.status(500).json({ err: err.message });
+// // //     }
+// // // });
+
+//OLD BROKEN CODE IS COMMENTED
+
+const express = require('express')
+const router = express.Router()
+
+const Attendance = require('../models/Attendance')
+const Event = require('../models/Event')
+const verifyToken = require('../middleware/verify-token')
+
 router.post('/:id/attend', verifyToken, async (req, res) => {
   try {
-    const event = await getEvent(req.params.id, res);
-    if (!event) return;
+    const event = await Event.findById(req.params.id)
+    if (!event) {
+      return res.status(404).json({ err: 'Event not found' })
+    }
 
-    const databaseData = await Attendance.create({
-      event: event._id,
-      user: req.user._id,
-     // status: req.body.status || 'going'
-     status:"going"
-    });
+    const attending = await Attendance.findOne({ event: event._id, user: req.user._id })
+    if (!attending) {
+      await Attendance.create({ event: event._id, user: req.user._id, status: 'going' })
+    }
 
-    res.status(201).json({
-      _id: databaseData._id,
-      event: databaseData.event,
-      user: databaseData.user,
-      status: databaseData.status
-    });
+    const attendanceData = await Attendance.find({ event: event._id }).populate('user', 'username')
+
+    const attendees = []
+    for (let i = 0; i < attendanceData.length; i++) {
+      attendees.push(attendanceData[i].user)
+    }
+
+    res.status(200).json({ attendees: attendees, count: attendees.length })
   } catch (err) {
-    res.status(500).json({ err: err.message });
+    res.status(500).json({ err: err.message })
   }
-});
-
-//Leave an event
+})
 
 router.delete('/:id/attend', verifyToken, async (req, res) => {
-    try {
-        await Attendance.findOneAndDelete({ event: req.params.id, user: req.user._id });
-        res.json({ message: 'Left event successfully' });
-    } catch (err) {
-        res.status(500).json({ err: err.message });
-    }
-});
+  try {
+    await Attendance.findOneAndDelete({ event: req.params.id, user: req.user._id })
 
-// Get all attendees of an event
-router.get('/:id/attend', verifyToken, async (req, res) => {
-    try {
-        const attendees = await Attendance.find({ event: req.params.id });
-        res.json(attendees);
-    } catch (err) {
-        res.status(500).json({ err: err.message });
-    }
-});
+    const rows = await Attendance.find({ event: req.params.id }).populate('user', 'username')
 
-module.exports = router;
+    const attendees = []
+    for (let i = 0; i < rows.length; i++) {
+      attendees.push(rows[i].user)
+    }
+
+    res.status(200).json({ attendees: attendees, count: attendees.length })
+  } catch (err) {
+    res.status(500).json({ err: err.message })
+  }
+})
+
+router.get('/:id/attendees', verifyToken, async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id).populate('owner', '_id')
+    if (!event) {
+      return res.status(404).json({ err: 'Event not found' })
+    }
+
+    if (!event.owner || event.owner._id.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ err: 'Not allowed' })
+    }
+
+    const rows = await Attendance.find({ event: event._id }).populate('user', 'username')
+
+    const attendees = []
+    for (let i = 0; i < rows.length; i++) {
+      attendees.push(rows[i].user)
+    }
+
+    res.status(200).json({ attendees: attendees, count: attendees.length })
+  } catch (err) {
+    res.status(500).json({ err: err.message })
+  }
+})
+
+router.get('/:id/attending', verifyToken, async (req, res) => {
+  try {
+    const exists = await Attendance.findOne({ event: req.params.id, user: req.user._id })
+
+    let attending = false
+    if (exists) {
+      attending = true
+    }
+
+    res.status(200).json({ attending: attending })
+  } catch (err) {
+    res.status(500).json({ err: err.message })
+  }
+})
+
+module.exports = router

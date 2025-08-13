@@ -1,4 +1,3 @@
-// npm
 const dotenv = require('dotenv');
 dotenv.config();
 const express = require('express');
@@ -9,31 +8,25 @@ const logger = require('morgan');
 const eventRouter = require('./controllers/events');
 const attendanceRouter = require('./controllers/attendance');
 
-// Import routers
 const authRouter = require('./controllers/auth');
 const usersRouter = require('./controllers/users');
 
-// Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI);
 
 mongoose.connection.on('connected', () => {
   console.log(`Connected to MongoDB ${mongoose.connection.name}.`);
 });
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(logger('dev'));
 
-// Routes
 app.use('/auth', authRouter);
 app.use('/users', usersRouter);
 app.use('/events', eventRouter);
 app.use('/events', attendanceRouter);
 
 
-
-// Start the server and listen on port 3000
 app.listen(3000, () => {
   console.log('The express app is ready!');
 });
