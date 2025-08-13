@@ -13,6 +13,7 @@ const eventSchema = new mongoose.Schema({
       type: Date,
       required: true
     },
+    // two locations (string and google map)
 locationName: { //  readable address
     type: String,
     required: true
