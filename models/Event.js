@@ -25,6 +25,16 @@ const eventSchema = new mongoose.Schema({
       type: String,
       required: true
     },
+     image: {
+    url: {
+      type: String,
+      required: true
+    },
+    cloudinary_id: {
+      type: String,
+      required: true
+    }
+  },
   owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User"
