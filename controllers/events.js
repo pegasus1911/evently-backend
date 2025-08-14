@@ -3,6 +3,7 @@ const router = express.Router();
 const Event = require('../models/Event');
 const verifyToken = require('../middleware/verify-token');
 const attendance = require('./attendance');
+const upload = require('../config/multer');
 
 
 
@@ -33,10 +34,17 @@ router.get('/:eventId', async (req,res) => {
 router.use(verifyToken);
 
 // Create an event
-router.post('/', async (req,res) => {
+router.post('/', upload.single('image') ,async (req,res) => {
   try{
-    req.body.owner = req.user._id; 
+    req.body.owner = req.user._id;
+    
+     req.body.image = {
+      url:req.file.path,
+      cloudinary_id: req.file.filename
+    }
+    
     const event = await Event.create(req.body);
+
     event._doc.owner = req.user;
     res.status(200).json(event);
 
